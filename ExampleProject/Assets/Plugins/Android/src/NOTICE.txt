@@ -1,0 +1,12 @@
+OuyaUnityBridge
+Copyright 2012-2013 Goodhustle Studios, Inc.
+
+This file incorporates work covered by the following copyright and permission notice:
+
+OUYA Software Development Kit
+Copyright 2012 OUYA, Inc.
+This product includes software developed by OUYA, Inc. (http://www.ouya.tv/).
+
+OUYA Unity Plugin
+Copyright 2012 Tagenigma LLC
+Copyright 2012 Hashbang Games

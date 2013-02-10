@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">OuyaUnityActivity</string>
+  <string name="cancel">Cancel</string>
+  <string name="ok">OK</string>
+  <string name="alert_title">Important</string>
+</resources>

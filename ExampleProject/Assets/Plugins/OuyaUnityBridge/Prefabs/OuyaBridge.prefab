@@ -1,0 +1,821 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &100000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 400000}
+  - 114: {fileID: 11400000}
+  - 114: {fileID: 11400002}
+  m_Layer: 0
+  m_Name: OuyaBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &400000
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8383ff0a12a52482f918d99ffa1cac52, type: 3}
+  m_Name: 
+  emulatedControllers:
+  - playerNum: 0
+    axes:
+    - virtualAxisName: Joy1 Horizontal
+      virtualAxisName2: Joy1 Axis 1
+      ouyaAxis: 0
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 0
+    - virtualAxisName: Joy1 Vertical
+      virtualAxisName2: Joy1 Axis 2
+      ouyaAxis: 1
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 0
+    - virtualAxisName: Joy1 RightHorizontal
+      virtualAxisName2: Joy1 Axis 3
+      ouyaAxis: 2
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 0
+    - virtualAxisName: Joy1 RightVertical
+      virtualAxisName2: Joy1 Axis 4
+      ouyaAxis: 3
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 0
+    - virtualAxisName: Joy1 LeftTrigger
+      virtualAxisName2: Joy1 Axis 5
+      ouyaAxis: 4
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 0
+    - virtualAxisName: Joy1 RightTrigger
+      virtualAxisName2: Joy1 Axis 6
+      ouyaAxis: 5
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 0
+    keys:
+    - virtualButtonName: Joy1 Fire1
+      ouyaKey: 0
+      keyName: Joystick1Button0
+      keyCode: 350
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 Jump
+      ouyaKey: 3
+      keyName: Joystick1Button1
+      keyCode: 351
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 Fire2
+      ouyaKey: 2
+      keyName: Joystick1Button2
+      keyCode: 352
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 Fire3
+      ouyaKey: 1
+      keyName: Joystick1Button3
+      keyCode: 353
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 LeftBumper
+      ouyaKey: 4
+      keyName: Joystick1Button4
+      keyCode: 354
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 RightBumper
+      ouyaKey: 6
+      keyName: Joystick1Button5
+      keyCode: 355
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 LeftTrigger
+      ouyaKey: 5
+      keyName: Joystick1Button6
+      keyCode: 356
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 RightTrigger
+      ouyaKey: 7
+      keyName: Joystick1Button7
+      keyCode: 357
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 LeftStick
+      ouyaKey: 8
+      keyName: Joystick1Button8
+      keyCode: 358
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 RightStick
+      ouyaKey: 9
+      keyName: Joystick1Button9
+      keyCode: 359
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 DPadCenter
+      ouyaKey: 19
+      keyName: Joystick1Button10
+      keyCode: 360
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 DPadDown
+      ouyaKey: 17
+      keyName: Joystick1Button11
+      keyCode: 361
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 DPadLeft
+      ouyaKey: 18
+      keyName: Joystick1Button12
+      keyCode: 362
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 DPadRight
+      ouyaKey: 16
+      keyName: Joystick1Button13
+      keyCode: 363
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 DPadUp
+      ouyaKey: 15
+      keyName: Joystick1Button14
+      keyCode: 364
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+    - virtualButtonName: Joy1 System
+      ouyaKey: 10
+      keyName: Joystick1Button15
+      keyCode: 365
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 0
+  - playerNum: 1
+    axes:
+    - virtualAxisName: Joy2 Horizontal
+      virtualAxisName2: Joy2 Axis 1
+      ouyaAxis: 0
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 1
+    - virtualAxisName: Joy2 Vertical
+      virtualAxisName2: Joy2 Axis 2
+      ouyaAxis: 1
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 1
+    - virtualAxisName: Joy2 RightHorizontal
+      virtualAxisName2: Joy2 Axis 3
+      ouyaAxis: 2
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 1
+    - virtualAxisName: Joy2 RightVertical
+      virtualAxisName2: Joy2 Axis 4
+      ouyaAxis: 3
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 1
+    - virtualAxisName: Joy2 LeftTrigger
+      virtualAxisName2: Joy2 Axis 5
+      ouyaAxis: 4
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 1
+    - virtualAxisName: Joy2 RightTrigger
+      virtualAxisName2: Joy2 Axis 6
+      ouyaAxis: 5
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 1
+    keys:
+    - virtualButtonName: Joy2 Fire1
+      ouyaKey: 0
+      keyName: Joystick2Button0
+      keyCode: 350
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 Jump
+      ouyaKey: 3
+      keyName: Joystick2Button1
+      keyCode: 351
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 Fire2
+      ouyaKey: 2
+      keyName: Joystick2Button2
+      keyCode: 352
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 Fire3
+      ouyaKey: 1
+      keyName: Joystick2Button3
+      keyCode: 353
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 LeftBumper
+      ouyaKey: 4
+      keyName: Joystick2Button4
+      keyCode: 354
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 RightBumper
+      ouyaKey: 6
+      keyName: Joystick2Button5
+      keyCode: 355
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 LeftTrigger
+      ouyaKey: 5
+      keyName: Joystick2Button6
+      keyCode: 356
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 RightTrigger
+      ouyaKey: 7
+      keyName: Joystick2Button7
+      keyCode: 357
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 LeftStick
+      ouyaKey: 8
+      keyName: Joystick2Button8
+      keyCode: 358
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 RightStick
+      ouyaKey: 9
+      keyName: Joystick2Button9
+      keyCode: 359
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 DPadCenter
+      ouyaKey: 19
+      keyName: Joystick2Button10
+      keyCode: 360
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 DPadDown
+      ouyaKey: 17
+      keyName: Joystick2Button11
+      keyCode: 361
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 DPadLeft
+      ouyaKey: 18
+      keyName: Joystick2Button12
+      keyCode: 362
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 DPadRight
+      ouyaKey: 16
+      keyName: Joystick2Button13
+      keyCode: 363
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 DPadUp
+      ouyaKey: 15
+      keyName: Joystick2Button14
+      keyCode: 364
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+    - virtualButtonName: Joy2 System
+      ouyaKey: 10
+      keyName: Joystick2Button15
+      keyCode: 365
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 1
+  - playerNum: 2
+    axes:
+    - virtualAxisName: Joy3 Horizontal
+      virtualAxisName2: Joy3 Axis 1
+      ouyaAxis: 0
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 2
+    - virtualAxisName: Joy3 Vertical
+      virtualAxisName2: Joy3 Axis 2
+      ouyaAxis: 1
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 2
+    - virtualAxisName: Joy3 RightHorizontal
+      virtualAxisName2: Joy3 Axis 3
+      ouyaAxis: 2
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 2
+    - virtualAxisName: Joy3 RightVertical
+      virtualAxisName2: Joy3 Axis 4
+      ouyaAxis: 3
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 2
+    - virtualAxisName: Joy3 LeftTrigger
+      virtualAxisName2: Joy3 Axis 5
+      ouyaAxis: 4
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 2
+    - virtualAxisName: Joy3 RightTrigger
+      virtualAxisName2: Joy3 Axis 6
+      ouyaAxis: 5
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 2
+    keys:
+    - virtualButtonName: Joy3 Fire1
+      ouyaKey: 0
+      keyName: Joystick3Button0
+      keyCode: 350
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 Jump
+      ouyaKey: 3
+      keyName: Joystick3Button1
+      keyCode: 351
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 Fire2
+      ouyaKey: 2
+      keyName: Joystick3Button2
+      keyCode: 352
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 Fire3
+      ouyaKey: 1
+      keyName: Joystick3Button3
+      keyCode: 353
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 LeftBumper
+      ouyaKey: 4
+      keyName: Joystick3Button4
+      keyCode: 354
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 RightBumper
+      ouyaKey: 6
+      keyName: Joystick3Button5
+      keyCode: 355
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 LeftTrigger
+      ouyaKey: 5
+      keyName: Joystick3Button6
+      keyCode: 356
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 RightTrigger
+      ouyaKey: 7
+      keyName: Joystick3Button7
+      keyCode: 357
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 LeftStick
+      ouyaKey: 8
+      keyName: Joystick3Button8
+      keyCode: 358
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 RightStick
+      ouyaKey: 9
+      keyName: Joystick3Button9
+      keyCode: 359
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 DPadCenter
+      ouyaKey: 19
+      keyName: Joystick3Button10
+      keyCode: 360
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 DPadDown
+      ouyaKey: 17
+      keyName: Joystick3Button11
+      keyCode: 361
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 DPadLeft
+      ouyaKey: 18
+      keyName: Joystick3Button12
+      keyCode: 362
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 DPadRight
+      ouyaKey: 16
+      keyName: Joystick3Button13
+      keyCode: 363
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 DPadUp
+      ouyaKey: 15
+      keyName: Joystick3Button14
+      keyCode: 364
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+    - virtualButtonName: Joy3 System
+      ouyaKey: 10
+      keyName: Joystick3Button15
+      keyCode: 365
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 2
+  - playerNum: 3
+    axes:
+    - virtualAxisName: Joy4 Horizontal
+      virtualAxisName2: Joy4 Axis 1
+      ouyaAxis: 0
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 3
+    - virtualAxisName: Joy4 Vertical
+      virtualAxisName2: Joy4 Axis 2
+      ouyaAxis: 1
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 3
+    - virtualAxisName: Joy4 RightHorizontal
+      virtualAxisName2: Joy4 Axis 3
+      ouyaAxis: 2
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 3
+    - virtualAxisName: Joy4 RightVertical
+      virtualAxisName2: Joy4 Axis 4
+      ouyaAxis: 3
+      value: 0
+      invert: 1
+      deadZone: .25
+      playerNum: 3
+    - virtualAxisName: Joy4 LeftTrigger
+      virtualAxisName2: Joy4 Axis 5
+      ouyaAxis: 4
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 3
+    - virtualAxisName: Joy4 RightTrigger
+      virtualAxisName2: Joy4 Axis 6
+      ouyaAxis: 5
+      value: 0
+      invert: 0
+      deadZone: .25
+      playerNum: 3
+    keys:
+    - virtualButtonName: Joy4 Fire1
+      ouyaKey: 0
+      keyName: Joystick4Button0
+      keyCode: 350
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 Jump
+      ouyaKey: 3
+      keyName: Joystick4Button1
+      keyCode: 351
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 Fire2
+      ouyaKey: 2
+      keyName: Joystick4Button2
+      keyCode: 352
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 Fire3
+      ouyaKey: 1
+      keyName: Joystick4Button3
+      keyCode: 353
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 LeftBumper
+      ouyaKey: 4
+      keyName: Joystick4Button4
+      keyCode: 354
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 RightBumper
+      ouyaKey: 6
+      keyName: Joystick4Button5
+      keyCode: 355
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 LeftTrigger
+      ouyaKey: 5
+      keyName: Joystick4Button6
+      keyCode: 356
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 RightTrigger
+      ouyaKey: 7
+      keyName: Joystick4Button7
+      keyCode: 357
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 LeftStick
+      ouyaKey: 8
+      keyName: Joystick4Button8
+      keyCode: 358
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 RightStick
+      ouyaKey: 9
+      keyName: Joystick4Button9
+      keyCode: 359
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 DPadCenter
+      ouyaKey: 19
+      keyName: Joystick4Button10
+      keyCode: 360
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 DPadDown
+      ouyaKey: 17
+      keyName: Joystick4Button11
+      keyCode: 361
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 DPadLeft
+      ouyaKey: 18
+      keyName: Joystick4Button12
+      keyCode: 362
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 DPadRight
+      ouyaKey: 16
+      keyName: Joystick4Button13
+      keyCode: 363
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 DPadUp
+      ouyaKey: 15
+      keyName: Joystick4Button14
+      keyCode: 364
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+    - virtualButtonName: Joy4 System
+      ouyaKey: 10
+      keyName: Joystick4Button15
+      keyCode: 365
+      down: 0
+      eventFrame: 0
+      downThisFrame: 0
+      upThisFrame: 0
+      playerNum: 3
+  virtualHorizontalAxis: Joy1 Horizontal
+  virtualVerticalAxis: Joy1 Vertical
+--- !u!114 &11400002
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5538696ea647e4954a55836937f3a04f, type: 3}
+  m_Name: 
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 100000}
+  m_IsPrefabParent: 1
+  m_IsExploded: 1
