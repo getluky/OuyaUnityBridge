@@ -6,7 +6,7 @@ A minimalist, unofficial bridge between the OUYA ODK and Unity4. Adheres to poll
 About
 ---------------
 
-*** Controller Input ***
+### Controller Input 
 
 This is an unofficial Unity-Ouya bridge that provides an abstraction mapped to Unity-standard Input design so that experienced developers with large codebases can jump right in instead of rewriting for event-based input. The official Unity plugin optimizes for event-based input instead of polling-based input. This is a minimalist polling-based solution with configurable input, and it layers Unity Input idioms on top of ODK's OuyaController class to allow for faster porting. The OuyaUnityBridge is mostly appropriate to experienced developers who show up from time to time with a large project and would have a very hard time switching over to event-based input (like me).
 
@@ -18,7 +18,7 @@ If you understand and use Unity Input virtual axes and buttons or keycodes heavi
 
 Again, if you can't get this to work or don't already rely heavily on Unity Input functions, you should probably use the official OUYA Unity plugin instead.
 
-*** IAP and UUIDs ***
+### IAP and UUIDs
 
 For completeness, this also supports the basic IAP/UUID calls in the ODK. The OuyaUnityActivity.java must be customized with your developer ID and product lists. 
 
@@ -58,7 +58,7 @@ How to Use:
 * Edit your existing code, and replace Input.<function> calls with OuyaInput.<function> for the functions listed below.
 
 
-*** A note on Pausing/Overlays ***
+### A note on Pausing/Overlays
 
 While developing the Java side, I noticed that the ODK calls the Activity's onPause method when showing IAP confirmation dialogs. If the UnityPlayer is paused, this will effectively stop execution safely if the gamer is in the middle of action, but the display will black out under the dialogue. I have set this to not pause by default, but instead clear out all input temporarily, as most games may only have IAP possible within a menu system that doesn't require time pausing. To change this setting, edit OuyaUnityActivity.java and set UNITY_PAUSE_ON_OUYA_OVERLAYS to true. In either case, OuyaBridge.didPause and OuyaBridge.didResume are called if you want to do custom handling here.
 
@@ -81,6 +81,8 @@ Copyright (c) 2013 Goodhustle Studios, Inc.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
