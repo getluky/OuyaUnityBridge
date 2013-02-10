@@ -12,7 +12,7 @@ public class ShowReceiptsAndProducts : MonoBehaviour {
 			GUILayout.Label(product.ToString());
 			if (GUILayout.Button("Purchase")) {
 				Debug.Log("Would purchase product");
-				OuyaBridge.Instance.PurchaseProduct(product.identifier);
+				OuyaBridge.PurchaseProduct(product.identifier);
 			}
 			GUILayout.EndHorizontal();
 		}	
@@ -22,13 +22,13 @@ public class ShowReceiptsAndProducts : MonoBehaviour {
 		}	
 		
 		if (GUILayout.Button("Fetch Gamer UUID")) {
-			OuyaBridge.Instance.FetchGamerUUID();	
+			OuyaBridge.FetchGamerUUID();	
 		}
 		if (OuyaBridge.activeGamerUuid != null) {
 			GUILayout.Label("Retrieved Gamer UUID: " + OuyaBridge.activeGamerUuid);
 		}
 		if (GUILayout.Button("Refresh Receipts")) {
-			OuyaBridge.Instance.RefreshReceipts();
+			OuyaBridge.RefreshReceipts();
 		}
 		GUILayout.EndArea();
 			

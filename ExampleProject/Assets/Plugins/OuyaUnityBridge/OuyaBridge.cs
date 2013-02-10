@@ -42,24 +42,24 @@ public class OuyaBridge : MonoBehaviour {
 	/// 
 	
 	public delegate void DeviceEvent();
-	public event DeviceEvent onDevicesChanged;
+	public static event DeviceEvent onDevicesChanged;
 	
 	public delegate void ProductEvent( string productIdentifier );
-	public event ProductEvent onProductPurchased;
+	public static event ProductEvent onProductPurchased;
 	
 	public delegate void ProductListEvent();
-	public event ProductListEvent onProductsUpdated;
+	public static event ProductListEvent onProductsUpdated;
 		
 	
 	public delegate void GamerUuidEvent( string uuid );
-	public event GamerUuidEvent onGamerUuidFetched;
+	public static event GamerUuidEvent onGamerUuidFetched;
 	
 	public delegate void ReceiptsEvent();
-	public event ReceiptsEvent onReceiptsUpdated;
+	public static event ReceiptsEvent onReceiptsUpdated;
 	
 	public delegate void PauseResumeEvent();
-	public event PauseResumeEvent onOuyaPause;
-	public event PauseResumeEvent onOuyaResume;
+	public static event PauseResumeEvent onOuyaPause;
+	public static event PauseResumeEvent onOuyaResume;
 	
 	
 	public static OuyaBridge _instance = null;
@@ -94,27 +94,33 @@ public class OuyaBridge : MonoBehaviour {
 	/// <param name='productId'>
 	/// Product identifier.
 	/// </param>
-	public void PurchaseProduct( string productId ) {
+	public static void PurchaseProduct( string productId ) {
+#if UNITY_OUYA && !UNITY_EDITOR
 		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
 		activity.Call("requestPurchase", productId);
+#endif
 	}
 	/// <summary>
 	/// Refreshes the receipts. Please note that this may not be necessary, as receipts are updated at 
 	/// launch and after the product is purchased.
 	/// </summary>
-	public void RefreshReceipts() {
+	public static void RefreshReceipts() {
+#if UNITY_OUYA && !UNITY_EDITOR
 		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
 		activity.Call("requestReceipts");
+#endif
 	}
 	/// <summary>
 	/// Fetchs the gamer UUID.
 	/// </summary>
-	public void FetchGamerUUID() {
+	public static void FetchGamerUUID() {
+#if UNITY_OUYA && !UNITY_EDITOR
 		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
 		activity.Call("fetchGamerUUID");
+#endif
 	}
 	
 	
@@ -176,7 +182,7 @@ public class OuyaBridge : MonoBehaviour {
 	
 	#region Getters
 	
-	public Device getDeviceById(int deviceId) {
+	public static Device getDeviceById(int deviceId) {
 		
 		for (int i=0,imax=devices.Length; i<imax; i++) {
 			if (deviceId == devices[i].id) {
@@ -186,7 +192,7 @@ public class OuyaBridge : MonoBehaviour {
 		return null;
 	}
 	
-	public Device getDeviceByPlayerId(int playerId) {
+	public static Device getDeviceByPlayerId(int playerId) {
 		
 		for (int i=0,imax=devices.Length; i<imax; i++) {
 			if (playerId == devices[i].player) {
