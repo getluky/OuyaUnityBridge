@@ -44,7 +44,7 @@ This allows you to call into the ODK directly from Unity via the following metho
 
 How to Use:
 ---------------
-* Import OuyaUnityBridge.unitypackage to your existing project
+* Import OuyaUnityBridge.unitypackage to your existing project (https://github.com/getluky/OuyaUnityBridge/blob/master/OuyaUnityBridge.unitypackage?raw=true) 
 * Make sure your build target is for Android
 * Change the Minimum API level to Jelly Bean (16)
 * Change Resolution and Presentation > Default Orientation to Landscape Left
