@@ -18,6 +18,10 @@ If you understand and use Unity Input virtual axes and buttons or keycodes heavi
 
 Again, if you can't get this to work or don't already rely heavily on Unity Input functions, you should probably use the official OUYA Unity plugin instead.
 
+See the wiki for OuyaInput's default virtual axis / button names and KeyCodes for OUYA controller inputs: 
+
+https://github.com/getluky/OuyaUnityBridge/wiki
+
 ### IAP and UUIDs
 
 For completeness, this also supports the basic IAP/UUID calls in the ODK. The OuyaUnityActivity.java must be customized with your developer ID and product lists. 
