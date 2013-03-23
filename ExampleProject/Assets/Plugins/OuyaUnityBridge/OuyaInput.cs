@@ -258,7 +258,7 @@ public class OuyaInput : MonoBehaviour {
 	}
 	
 	void Init() {
-		Debug.Log("OuyaInput.Init()"); 
+		if (Debug.isDebugBuild) Debug.Log("OuyaInput.Init()"); 
 		
 #if UNITY_OUYA
 		if (!Application.isEditor) {
@@ -397,6 +397,23 @@ public class OuyaInput : MonoBehaviour {
 			keyCode == KeyCode.JoystickButton14 ||
 			keyCode == KeyCode.JoystickButton15);
 	}
+	/**
+	 * This is a special method that will emulate a 1-frame SYSTEM/MENU button press.
+	 * Since the OUYA SDK is not synchronized to Unity frames and it sends Down/Up events
+	 * for MENU button press simultaneously, we must handle it separately.
+	 */
+	
+	IEnumerator MenuButtonPressed(string playerNumString) {
+#if UNITY_OUYA && !UNITY_EDITOR
+		int playerNum = int.Parse (playerNumString);
+		SetButtonValue(playerNum, OuyaKey.BUTTON_SYSTEM, true);
+		yield return null;
+		SetButtonValue(playerNum, OuyaKey.BUTTON_SYSTEM, false);
+#else
+		yield break;
+#endif
+		
+	}
 	
 	void SetAxisValue(int playerNum, OuyaAxis axisCode, float axisVal) {
 #if UNITY_OUYA && !UNITY_EDITOR	
@@ -418,7 +435,7 @@ public class OuyaInput : MonoBehaviour {
 		if (value) {
 			if (!emulatedKey.down) 
 			{
-				Debug.Log("Handling button down " + keyCode + " " + value);
+				if (Debug.isDebugBuild) Debug.Log("Handling button down " + keyCode + " " + value);
 		
 				emulatedKey.eventFrame = Time.frameCount;
 				
@@ -428,7 +445,7 @@ public class OuyaInput : MonoBehaviour {
 		} else {
 			if (emulatedKey.down) 
 			{
-				Debug.Log("Handling button up " + keyCode + " " + value);
+				if (Debug.isDebugBuild) Debug.Log("Handling button up " + keyCode + " " + value);
 		
 				emulatedKey.eventFrame = Time.frameCount;
 			
@@ -489,6 +506,8 @@ public class OuyaInput : MonoBehaviour {
 						SetButtonValue(i, OuyaKey.BUTTON_RT, playerStates[i].Get<bool>("ButtonR2"));
 						SetButtonValue(i, OuyaKey.BUTTON_RB, playerStates[i].Get<bool>("ButtonR1"));
 						SetButtonValue(i, OuyaKey.BUTTON_R3, playerStates[i].Get<bool>("ButtonR3"));
+						
+						SetButtonValue(i, OuyaKey.BUTTON_SYSTEM, playerStates[i].Get<bool>("ButtonSystem"));
 						
 						SetButtonValue(i, OuyaKey.BUTTON_DPAD_UP, playerStates[i].Get<bool>("ButtonDPU"));
 						SetButtonValue(i, OuyaKey.BUTTON_DPAD_DOWN, playerStates[i].Get<bool>("ButtonDPD"));

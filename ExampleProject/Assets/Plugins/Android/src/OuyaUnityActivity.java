@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013 Goodhustle Studios, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  * This file incorporates work covered by the following copyright and permission notice:
- * 
+ *
  * Copyright (C) 2012 OUYA, Inc.
  * Copyright (C) 2012 Tagenigma LLC
  * Copyright (C) 2012 Hashbang Games
@@ -46,6 +46,7 @@ import android.hardware.input.InputManager; //API 16
 import android.hardware.input.InputManager.InputDeviceListener; //API 16
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -59,20 +60,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.*;
+import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.security.GeneralSecurityException;
 
 import com.unity3d.player.UnityPlayer;
 import com.unity3d.player.UnityPlayerActivity;
 import com.unity3d.player.UnityPlayerNativeActivity;
 import com.unity3d.player.UnityPlayerProxyActivity;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
+import java.util.*;
 import tv.ouya.console.api.OuyaController;
 
 public class OuyaUnityActivity extends Activity implements InputDeviceListener
@@ -92,16 +96,19 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
      * Log onto the developer website (you should have received a URL, a username and a password in email)
      * and get your developer ID. Plug it in here. Use your developer ID, not your developer UUID.
      * <p/>
-     * The current value is just a sample developer account. You should change it.
+     * The current value is the OUYA sample default so that UUID calls will work. Replace this with
+     * your developer ID from the portal.
      */
-    public static final String DEVELOPER_ID = "";
+    public static final String DEVELOPER_ID = "310a8f51-4d6e-4ae5-bda0-b93878e5f5d0";
 
     /**
      * The application key. This is used to decrypt encrypted receipt responses. This should be replaced with the
      * application key obtained from the OUYA developers website.
      */
 
-    private static final byte[] APPLICATION_KEY = { 0x00 };
+    private static final byte[] APPLICATION_KEY = {
+            (byte) 0x00,
+    };
 
     /**
      * Before this app will run, you must define some purchasable items on the developer website. Once
@@ -110,16 +117,16 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
      * The Product IDs below are those in our developer account. You should change them.
      */
 
-    public static final List<Purchasable> PRODUCT_IDENTIFIER_LIST = Arrays.asList(new Purchasable("long_sword"), 
-    	new Purchasable("sharp_axe"), 
-    	new Purchasable("__DECLINED__THIS_PURCHASE"));
-    
+    public static final List<Purchasable> PRODUCT_IDENTIFIER_LIST = Arrays.asList(
+        new Purchasable("item-example")
+        );
+
     /**
      * @IMPORTANT
 	 * The following line determines whether execution in the Unity application
-     * will continue when the OUYA SDK opens up its own overlays. 
+     * will continue when the OUYA SDK opens up its own overlays.
      * If pause is not enabled, Input will be bypassed when the Unity player is paused because
-     * the java layer will stop sending input. 
+     * the java layer will stop sending input.
      * If pause is enabled, then the game will not show underneath the popup,
      * but it will completely stop execution
 	 */
@@ -129,41 +136,61 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
      * The saved instance state key for products
      */
 
-    protected static final String PRODUCTS_INSTANCE_STATE_KEY = "Products";
+    private static final String PRODUCTS_INSTANCE_STATE_KEY = "Products";
 
     /**
      * The saved instance state key for receipts
      */
 
-    protected static final String RECEIPTS_INSTANCE_STATE_KEY = "Receipts";
+    private static final String RECEIPTS_INSTANCE_STATE_KEY = "Receipts";
 
     /**
-     * The ID used to track the activity started by an authentication intent
+     * The ID used to track the activity started by an authentication intent during a purchase.
      */
 
-    protected static final int AUTHENTICATION_ACTIVITY_ID = 1;
+    private static final int PURCHASE_AUTHENTICATION_ACTIVITY_ID = 1;
 
-    protected OuyaFacade ouyaFacade;
-	
-    protected UserManager userManager;
-    protected List<Product> mProductList;
-    protected List<Receipt> mReceiptList;
+    /**
+     * The ID used to track the activity started by an authentication intent during a request for
+     * the gamers UUID.
+     */
+
+    private static final int GAMER_UUID_AUTHENTICATION_ACTIVITY_ID = 2;
+
+    private OuyaFacade ouyaFacade;
+
+    private UserManager userManager;
+    private List<Product> mProductList;
+    private List<Receipt> mReceiptList;
 
 	//indicates the Unity player has loaded
-	protected Boolean mEnableUnity = true;
+	private Boolean mEnableUnity = true;
 
-	protected Boolean mEnableLogging = false;
+	private Boolean mEnableLogging = false;
 
-	protected InputManager mInputManager = null;
-	protected InputManager.InputDeviceListener minputDeviceListener = null;
+	private InputManager mInputManager = null;
+	private InputManager.InputDeviceListener minputDeviceListener = null;
 
-	protected static ControllerState[] playerStates;
+	private static ControllerState[] playerStates;
 
-	protected String mGamerUuid;
+	private String mGamerUuid;
 
-	protected IntentFilter accountsChangedFilter;
+	private IntentFilter accountsChangedFilter;
 
-	protected boolean mPaused = false;
+	private boolean mPaused = false;
+
+    /**
+     * The outstanding purchase request UUIDs.
+     */
+
+    private final Map<String, String> mOutstandingPurchaseRequests = new HashMap<String, String>();
+
+
+    /**
+     * The cryptographic key for this application
+     */
+
+    private PublicKey mPublicKey;
 
     /**
      * Broadcast listener to handle re-requesting the receipts when a user has re-authenticated
@@ -179,10 +206,10 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
         }
     };
 	@Override
-	protected void onCreate(Bundle savedInstanceState) 
+	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-
+        OuyaController.init(this);
 // Initialize ouyaFacade
 		ouyaFacade = OuyaFacade.getInstance();
 		ouyaFacade.init(this, DEVELOPER_ID);
@@ -192,6 +219,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
         //ouyaFacade.setTestMode();
 
         userManager = UserManager.getInstance(this);
+
 
 
 		playerStates = new ControllerState[OuyaController.MAX_CONTROLLERS];
@@ -225,6 +253,15 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
             requestProducts();
         }
 
+        // Create a PublicKey object from the key data downloaded from the developer portal.
+        try {
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(APPLICATION_KEY);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            mPublicKey = keyFactory.generatePublic(keySpec);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Unable to create encryption key", e);
+        }
+
 		// Create the UnityPlayer
         mUnityPlayer = new UnityPlayer(this);
         int glesMode = mUnityPlayer.getSettings().getInt("gles_mode", 1);
@@ -243,10 +280,10 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 	}
 	@Override
-	protected void onStart() 
+	protected void onStart()
 	{
 		super.onStart();
-
+        // Immediately request an up-to-date copy of receipts.
 		requestReceipts();
 
 		// Register to receive notifications about account changes. This will re-query the receipt
@@ -273,7 +310,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 			try {
 				mInputManager.unregisterInputDeviceListener(this);
 			} catch (IllegalArgumentException e) {
-				Log.w(LOG_TAG, "Already unregistered input listener at onPause");	
+				Log.w(LOG_TAG, "Already unregistered input listener at onPause");
 			}
 		}
 		// Unregister input listener
@@ -295,7 +332,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		// Kill Unity player
 		mUnityPlayer.quit();
 	}
-	
+
 
 
     @Override
@@ -306,7 +343,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 			try {
 				mInputManager.unregisterInputDeviceListener(this);
 			} catch (IllegalArgumentException e) {
-				Log.w(LOG_TAG, "Already unregistered input listener at onPause");	
+				Log.w(LOG_TAG, "Already unregistered input listener at onPause");
 			}
 		}
 		try {
@@ -368,19 +405,40 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
      */
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-    	if (requestCode == AUTHENTICATION_ACTIVITY_ID) {
-    		final SharedPreferences purchasePrefs = getProductIdSharedPreferences();
-    		final String suspendedPurchaseId = purchasePrefs.getString("currentPurchase", null);
-    		if (suspendedPurchaseId == null) {
-    			return;
-    		}
-
-    		if (resultCode == RESULT_OK) {
-    			SharedPreferences.Editor editor = purchasePrefs.edit();
-    			editor.remove("currentPurchase");
-    			requestPurchase(suspendedPurchaseId);
-    		}
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case GAMER_UUID_AUTHENTICATION_ACTIVITY_ID:
+                    fetchGamerUUID();
+                    break;
+                case PURCHASE_AUTHENTICATION_ACTIVITY_ID:
+                    restartInterruptedPurchase();
+                    break;
+            }
     	}
+    }
+
+    /**
+     * Restart an interrupted purchase
+     */
+
+    private void restartInterruptedPurchase() {
+        final String suspendedPurchaseId = OuyaPurchaseHelper.getSuspendedPurchase(this);
+        if (suspendedPurchaseId == null) {
+            return;
+        }
+
+        try {
+            for (Product thisProduct : mProductList) {
+                if (suspendedPurchaseId.equals(thisProduct.getIdentifier())) {
+                    requestPurchase(thisProduct.getIdentifier());
+                    break;
+                }
+            }
+        }
+        catch (Exception ex) {
+            Log.e(LOG_TAG, "Error during purchase restart request", ex);
+            showError(ex.getMessage());
+        }
     }
 
     /**
@@ -434,12 +492,14 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 	void sendDevices()
 	{
+        // reinitialize controllers
+        OuyaController.init(this);
 		//Get a list of all device id's and assign them to players.
 		ArrayList<Device> devices = checkDevices();
 		Gson gson = new Gson();
 		String jsonData = gson.toJson(devices);
 		UnityPlayer.UnitySendMessage("OuyaBridge", "didChangeDevices", jsonData);
-	}	
+	}
 
 	private void requestProducts() {
 		ouyaFacade.requestProductList(PRODUCT_IDENTIFIER_LIST, new CancelIgnoringOuyaResponseListener<ArrayList<Product>>() {
@@ -451,12 +511,25 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 			@Override
 			public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
-				// @TODO: Handle failure more gracefully than toast.
-				Toast.makeText(OuyaUnityActivity.this, "Could not fetch product information (error " + errorCode + ":" + errorMessage, Toast.LENGTH_LONG).show();
+
+				showError("Could not fetch product information (error " + errorCode + ":" + errorMessage);
 			}
 
 		});
 	}
+
+    public boolean isRunningOnOuyaHardware() {
+        boolean rc = ouyaFacade.isRunningOnOUYAHardware();
+        // The log message is partly here for debugging, partly to remind you not to call this each frame!
+        Log.i(LOG_TAG, "ouyaFacade.isRunningOnOuyaHardware returned " + ("" + rc));
+        return rc;
+    }
+
+    public int getOdkVersionNumber() {
+        int rc = ouyaFacade.getOdkVersionNumber();
+        Log.i(LOG_TAG, "ouyaFacade.getOdkVersionNumber returned " + ("" + rc));
+        return rc;
+    }
 
 	public void fetchGamerUUID() {
 		ouyaFacade.requestGamerUuid(new CancelIgnoringOuyaResponseListener<String>() {
@@ -470,32 +543,34 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 			@Override
 			public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
 				Log.w(LOG_TAG, "Fetch gamer UUID error (code " + errorCode + ": " + errorMessage + ")");
-				if (errorCode == OuyaErrorCodes.NO_AUTHENTICATION_DATA) {
-					// If there is no authentication data, we need to get the user to add an ouya account
-					userManager.requestUserAddsAccount(OuyaUnityActivity.this, new OuyaResponseListener<Void>() {
-						@Override
-						public void onSuccess(Void result) {
-							// Do nothing
-						}
+                boolean wasHandledByAuthHelper =
+                    OuyaAuthenticationHelper.handleError(
+                        OuyaUnityActivity.this,
+                        errorCode,
+                        errorMessage,
+                        optionalData,
+                        GAMER_UUID_AUTHENTICATION_ACTIVITY_ID,
+                        new OuyaResponseListener<Void>() {
+                            @Override
+                            public void onSuccess(Void result) {
+                                // Retry the fetch if the error was handled
+                                fetchGamerUUID();
+                            }
 
-						@Override
-						public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
-							// @TODO: do something more than toast
-							Toast.makeText(OuyaUnityActivity.this, "Unable to fetch gamer UUID (error " + errorCode + ": " + errorMessage + ")", Toast.LENGTH_LONG).show();
-						}
+                            @Override
+                            public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
 
-						@Override
-						public void onCancel() {
-							Toast.makeText(OuyaUnityActivity.this, "Unable to fetch gamer UUID (Attempt to get account cancelled)", Toast.LENGTH_LONG).show();
-						}
-					});
-				} else if (errorCode == OuyaErrorCodes.INVALID_AUTHENTICATION_DATA && optionalData.containsKey("intent")) {
-					// If the authenticationd ata is invalid, and a re-authentication intent has been supplied,
-					// start the re-authentication
-					startActivity((Intent) optionalData.getParcelable("intent"));
-				} else {
-					Toast.makeText(OuyaUnityActivity.this, "Unable to fetch gamer UUID (error " + errorCode + ": " + errorMessage + ")", Toast.LENGTH_LONG).show();
-				}
+                                showError("Unable to fetch gamer UUID (error " + errorCode + ": " + errorMessage + ")");
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                showError("Unable to fetch gamer UUID (Attempt to get account cancelled)");
+                            }
+                        });
+                if (!wasHandledByAuthHelper) {
+                    showError("Unable to fetch gamer UUID" + errorCode + ": " + errorMessage + ")");
+                }
 			}
 		});
 	}
@@ -513,18 +588,62 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 	private void addReceipts() {
 		// Send receipt information over to Unity.
+        Gson gson = new Gson();
+        String json = gson.toJson(mReceiptList);
+        UnityPlayer.UnitySendMessage("OuyaBridge", "didFetchReceipts", json);
 	}
 
-	public void requestPurchase(final String productId) {
-		ouyaFacade.requestPurchase(new Purchasable(productId), new PurchaseListener(productId));
+	public void requestPurchase(final String productId)
+        throws GeneralSecurityException, UnsupportedEncodingException, JSONException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+
+        // This is an ID that allows you to associate a successful purchase with
+        // it's original request. The server does nothing with this string except
+        // pass it back to you, so it only needs to be unique within this instance
+        // of your app to allow you to pair responses with requests.
+        String uniqueId = Long.toHexString(sr.nextLong());
+
+        JSONObject purchaseRequest = new JSONObject();
+        purchaseRequest.put("uuid", uniqueId);
+        purchaseRequest.put("identifier", productId);
+        purchaseRequest.put("testing", "true"); // This value is only needed for testing, not setting it results in a live purchase
+        String purchaseRequestJson = purchaseRequest.toString();
+
+        byte[] keyBytes = new byte[16];
+        sr.nextBytes(keyBytes);
+        SecretKey key = new SecretKeySpec(keyBytes, "AES");
+
+        byte[] ivBytes = new byte[16];
+        sr.nextBytes(ivBytes);
+        IvParameterSpec iv = new IvParameterSpec(ivBytes);
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "BC");
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+        byte[] payload = cipher.doFinal(purchaseRequestJson.getBytes("UTF-8"));
+
+        cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+        cipher.init(Cipher.ENCRYPT_MODE, mPublicKey);
+        byte[] encryptedKey = cipher.doFinal(keyBytes);
+
+        Purchasable purchasable =
+                new Purchasable(
+                        productId,
+                        Base64.encodeToString(encryptedKey, Base64.NO_WRAP),
+                        Base64.encodeToString(ivBytes, Base64.NO_WRAP),
+                        Base64.encodeToString(payload, Base64.NO_WRAP) );
+
+        synchronized (mOutstandingPurchaseRequests) {
+            mOutstandingPurchaseRequests.put(uniqueId, productId);
+        }
+        ouyaFacade.requestPurchase(purchasable, new PurchaseListener(productId));
 	}
 
 	private ArrayList<Device> checkDevices(){
 		//Get a list of all device id's and assign them to players.
 		ArrayList<Device> devices = new ArrayList<Device>();
 		int[] deviceIds = InputDevice.getDeviceIds();
-		
-		
+
+
 		int controllerCount = 1;
 		for (int count=0; count < deviceIds.length; count++)
 		{
@@ -544,7 +663,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 					devices.add(device);
 					controllerCount++;
 				}
-				else  
+				else
 				{
 					Device device = new Device();
 					device.id = d.getId();
@@ -553,19 +672,19 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 					device.name = d.getName();
 					if (device.name.indexOf("gpio-keys") == -1) {
 						// Skip gpio-keys!
-						devices.add(device);	
+						devices.add(device);
 					}
-					
+
 				}
 			}
 		}
 		return devices;
-	}	
+	}
 
 
-	
+
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) 
+	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
 
 		// Pass to OuyaController first, then process.
@@ -573,7 +692,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		if (mPaused) return handled || super.onKeyDown(keyCode, event);
 		int playerNum = 0;
 		try {
-			playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());     
+			playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
 		    ControllerState data = playerStates[playerNum];
 			OuyaController c = OuyaController.getControllerByPlayer(playerNum);
 			if (data != null)
@@ -595,27 +714,34 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 				data.ButtonR1 = c.getButton(OuyaController.BUTTON_R1);
 				data.ButtonR2 = c.getButton(OuyaController.BUTTON_R2);
 				data.ButtonR3 = c.getButton(OuyaController.BUTTON_R3);
-
-				data.ButtonSystem = c.getButton(OuyaController.BUTTON_SYSTEM);
 
 			}
 		} catch (Exception e) {
 			Log.w("Unity", "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
 		}
 
-	    
+
 	    return handled || super.onKeyDown(keyCode, event);
 	}
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) 
+	public boolean onKeyUp(int keyCode, KeyEvent event)
 	{
+
+        // A special MENU KeyUp event is triggered at the same time as its KeyDown event
+        // in the OUYA SDK. We tell the Unity layer to handle this specially and emulate
+        // a 1-frame menu button press.
+        if (keyCode == OuyaController.BUTTON_MENU) {
+            int playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
+            UnityPlayer.UnitySendMessage("OuyaBridge", "MenuButtonPressed", "" + playerNum);
+        }
+
 		// Pass to OuyaController first, then process.
 	    boolean handled = OuyaController.onKeyDown(keyCode, event);
 	    if (mPaused) return handled || super.onKeyDown(keyCode, event);
 		int playerNum = 0;
 		try {
-		    playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());     
+		    playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
 		    ControllerState data = playerStates[playerNum];
 			OuyaController c = OuyaController.getControllerByPlayer(playerNum);
 			if (data != null)
@@ -637,8 +763,6 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 				data.ButtonR1 = c.getButton(OuyaController.BUTTON_R1);
 				data.ButtonR2 = c.getButton(OuyaController.BUTTON_R2);
 				data.ButtonR3 = c.getButton(OuyaController.BUTTON_R3);
-
-				data.ButtonSystem = c.getButton(OuyaController.BUTTON_SYSTEM);
 			}
 		} catch (Exception e) {
 			Log.w("Unity", "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
@@ -659,7 +783,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 		int playerNum = 0;
 		try {
-			playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());     
+			playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
 		    ControllerState data = playerStates[playerNum];
 			OuyaController c = OuyaController.getControllerByPlayer(playerNum);
 		    if (data != null)
@@ -676,11 +800,11 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		} catch (Exception e) {
 			Log.i("Unity", "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
 		}
-	    
+
 	    return handled || super.onGenericMotionEvent(event);
 	}
 
-	/*** 
+	/***
 	/* Unity Interface through JNI
 	/*/
 
@@ -690,14 +814,14 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		return playerStates[playerNum];
 	}
 
-	
+
 
 	public class Device
 	{
 		public int id;
 		public int player;
 		public String name;
-	}	
+	}
 
 
 	public static class ControllerState
@@ -754,6 +878,14 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		}
 	}
 
+   /**
+     * Display an error to the user. We're using a toast for simplicity.
+     */
+
+    private void showError(final String errorMessage) {
+        Toast.makeText(OuyaUnityActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+    }
+
 	/**
 	 * The callback for list of user receipts
 	 */
@@ -767,16 +899,28 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		@Override
 		public void onSuccess(String receiptResponse) {
 			OuyaEncryptionHelper helper = new OuyaEncryptionHelper();
-			final List<Receipt> receipts;
+			List<Receipt> receipts;
 			try {
-				// Determine whether this is encrypted JSON.
-				if (receiptResponse.contains("{")) {
-					receipts = helper.parseJSONReceiptResponse(receiptResponse);
-				} else {
-					receipts = helper.decryptReceiptResponse(receiptResponse, APPLICATION_KEY);
-				}
+                JSONObject response = new JSONObject(receiptResponse);
+                if (response.has("key") && response.has("iv")) {
+                    receipts = helper.decryptReceiptResponse(response, mPublicKey);
+                } else {
+                    receipts = helper.parseJSONReceiptResponse(receiptResponse);
+                }
 			} catch (GeneralSecurityException e) {
 				throw new RuntimeException(e);
+            } catch (JSONException e) {
+                if(e.getMessage().contains("ENCRYPTED")) {
+                    // This is a hack for some testing code which will be removed
+                    // before the consumer release
+                    try {
+                        receipts = helper.parseJSONReceiptResponse(receiptResponse);
+                    } catch (IOException ioe) {
+                        throw new RuntimeException(ioe);
+                    }
+                } else {
+                    throw new RuntimeException(e);
+                }
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			} catch (Exception e) {
@@ -809,10 +953,10 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
          *
          * @param optionalData A Map of optional key/value pairs which provide additional information.
          */
-		@Override 
+		@Override
 		public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
 			Log.w(LOG_TAG, "Request Receipts error (code " + errorCode + ": " + errorMessage + ")");
-			Toast.makeText(OuyaUnityActivity.this, "Could not fetch receipts (error " + errorCode + ": " + errorMessage + ")", Toast.LENGTH_LONG).show();
+			showError("Could not fetch receipts (error " + errorCode + ": " + errorMessage + ")");
 		}
 	}
 
@@ -821,7 +965,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 	 */
 
 	private class PurchaseListener extends CancelIgnoringOuyaResponseListener<String> {
-		/** 
+		/**
 		* The ID of the product the user is trying to purchase. This is used in onFailure to start a re-purchase
 		* if the user wishes to do so.
 		*/
@@ -834,37 +978,62 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 		@Override
 		public void onSuccess(String result) {
+            Product product;
+            String id;
 			try {
-				Product product;
-				if (result.contains("{")) {
-					product = new Product(new JSONObject(result));
-				} else {
-					product = OuyaEncryptionHelper.decryptProductResponse(result, APPLICATION_KEY);
-				}
-				// Show alert dialog?
-				/*
-	                new AlertDialog.Builder(OuyaUnityActivity.this)
-	                        .setTitle(getString(R.string.alert_title))
-	                        .setMessage("You have successfully purchased a " + product.getName() + " for " + Strings.formatDollarAmount(product.getPriceInCents()))
-	                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-	                            @Override
-	                            public void onClick(DialogInterface dialogInterface, int i) {
-	                                dialogInterface.dismiss();
-	                            }
-	                        })
-	                        .show();
-	                        */
-				// Report success back to Unity
-				UnityPlayer.UnitySendMessage("OuyaBridge", "didPurchaseProductId", product.getIdentifier());
-				// Re-request receipts to keep receipt data up to date
-				requestReceipts();
+                OuyaEncryptionHelper helper = new OuyaEncryptionHelper();
+
+                JSONObject response = new JSONObject(result);
+                if (response.has("key") && response.has("iv")) {
+                    id = helper.decryptPurchaseResponse(response, mPublicKey);
+                    String storedProductId;
+                    synchronized (mOutstandingPurchaseRequests) {
+                        storedProductId = mOutstandingPurchaseRequests.remove(id);
+                    }
+                    if (storedProductId == null || !storedProductId.equals(mProductId)) {
+                        onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, "Purchased product is not the same as purchase request product", Bundle.EMPTY);
+                        return;
+                    }
+                } else {
+                    product = new Product(new JSONObject(result));
+                    if (!mProductId.equals(product.getIdentifier())) {
+                        onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, "Purchased product is not the same as purchase request product", Bundle.EMPTY);
+                        return;
+                    }
+                }
+            } catch (ParseException e) {
+                onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, e.getMessage(), Bundle.EMPTY);
+                return;
 			} catch (JSONException e) {
-				onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, e.getMessage(), Bundle.EMPTY);
+                if(e.getMessage().contains("ENCRYPTED")) {
+                    // This is a hack for some testing code which will be removed
+                    // before the consumer release
+                    try {
+                        product = new Product(new JSONObject(result));
+                        if(!mProductId.equals(product.getIdentifier())) {
+                            onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, "Purchased product is not the same as purchase request product", Bundle.EMPTY);
+                            return;
+                        }
+                    } catch (JSONException jse) {
+                        onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, e.getMessage(), Bundle.EMPTY);
+                        return;
+                    }
+                } else {
+                    onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, e.getMessage(), Bundle.EMPTY);
+                    return;
+                }
 			} catch (IOException e) {
 				onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, e.getMessage(), Bundle.EMPTY);
+                return;
 			} catch (GeneralSecurityException e) {
 				onFailure(OuyaErrorCodes.THROW_DURING_ON_SUCCESS, e.getMessage(), Bundle.EMPTY);
+                return;
 			}
+
+            // Report success back to Unity
+            UnityPlayer.UnitySendMessage("OuyaBridge", "didPurchaseProductId", mProductId);
+            // Re-request receipts to keep receipt data up to date
+            requestReceipts();
 		}
 
 
@@ -882,30 +1051,57 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 
 	    @Override
 	    public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
-	    	if (errorCode == OuyaErrorCodes.INVALID_AUTHENTICATION_DATA && optionalData.containsKey("intent")) {
-	    		// start re-auth
-				SharedPreferences.Editor editor = getProductIdSharedPreferences().edit();
-				editor.putString("currentPurchase", mProductId);
-				editor.apply();
-				startActivityForResult((Intent) optionalData.getParcelable("intent"), AUTHENTICATION_ACTIVITY_ID);
-				return;
-	    	}
+            // Suspend failure purchases
+            OuyaPurchaseHelper.suspendPurchase(OuyaUnityActivity.this, mProductId);
 
-	    	// Show the user the error and offer them ability to repurchase if they think the error is not permanent.
-	    	            // Show the user the error and offer them the ability to re-purchase if they
-	        // decide the error is not permanent.
-	        new AlertDialog.Builder(OuyaUnityActivity.this)
-	                .setTitle(getString(R.string.alert_title))
-	                .setMessage("Unfortunately, your purchase failed [error code " + errorCode + " (" + errorMessage + ")]. Would you like to try again?")
-	                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-	                    @Override
-	                    public void onClick(DialogInterface dialogInterface, int i) {
-	                        dialogInterface.dismiss();
-	                        requestPurchase(mProductId);
-	                    }
-	                })
-	                .setNegativeButton(R.string.cancel, null)
-	                .show();
+            boolean wasHandledByHelper =
+                OuyaAuthenticationHelper.handleError(
+                    OuyaUnityActivity.this,
+                    errorCode,
+                    errorMessage,
+                    optionalData,
+                    PURCHASE_AUTHENTICATION_ACTIVITY_ID,
+                    new OuyaResponseListener<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            restartInterruptedPurchase(); // Retry the purchase
+                        }
+
+                        @Override
+                        public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
+                            showError("Unable to make purchase (error " +
+                                                    errorCode + ": " + errorMessage + ")");
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            showError("Unable to make purchase");
+                        }
+                    });
+            if (!wasHandledByHelper) {
+
+            // Show the user the error and offer them ability to repurchase if they think the error is not permanent.
+                        // Show the user the error and offer them the ability to re-purchase if they
+            // decide the error is not permanent.
+                new AlertDialog.Builder(OuyaUnityActivity.this)
+                        .setTitle(getString(R.string.alert_title))
+                        .setMessage("Unfortunately, your purchase failed [error code " + errorCode + " (" + errorMessage + ")]. Would you like to try again?")
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                try {
+                                    requestPurchase(mProductId);
+                                }
+                                catch (Exception e) {
+                                    Log.e(LOG_TAG, "Error during purchase", e);
+                                    showError(e.getMessage());
+                                }
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
+            }
 	    }
 	}
 }

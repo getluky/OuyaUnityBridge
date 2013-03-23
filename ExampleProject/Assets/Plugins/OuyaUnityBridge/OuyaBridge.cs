@@ -26,7 +26,6 @@ using System.Collections.Generic;
 /// </summary>
 
 public class OuyaBridge : MonoBehaviour {
-    
 	public const string JAVA_APP_CLASS = "com.goodhustle.ouyaunitybridge.OuyaUnityActivity";
 	
 	// This is a builtin array for speed, as it may be used every frame to loop through controllers.
@@ -99,6 +98,12 @@ public class OuyaBridge : MonoBehaviour {
 		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
 		activity.Call("requestPurchase", productId);
+#elif UNITY_EDITOR
+		// For testing purposes, always assume purchase success and call listener
+		if (onProductPurchased != null) {
+			Debug.Log ("In editor mode, automatically testing successful purchase");
+			onProductPurchased(productId);
+		}	
 #endif
 	}
 	/// <summary>
@@ -122,7 +127,32 @@ public class OuyaBridge : MonoBehaviour {
 		activity.Call("fetchGamerUUID");
 #endif
 	}
-	
+	/// <summary>
+	/// Determines whether this app is running on ouya hardware.
+	/// </summary>
+	public static bool IsRunningOnOuyaHardware() {
+#if UNITY_OUYA && !UNITY_EDITOR
+		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
+		bool rc = activity.Call<bool>("isRunningOnOuyaHardware");
+		return rc;
+#else
+		return false;
+#endif
+	}
+	/// <summary>
+	/// Asks the OuyaFacade what our Integer-based OUYA SDK Version is.
+	/// </summary>
+	public static int GetOdkVersionNumber() {
+#if UNITY_OUYA && !UNITY_EDITOR
+		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
+		int rc = activity.Call<int>("getOdkVersionNumber");
+		return rc;
+#else
+		return 0;
+#endif
+	}	
 	
 	#endregion
 	
@@ -220,6 +250,11 @@ public class OuyaBridge : MonoBehaviour {
         public string identifier = string.Empty;
         public string name = string.Empty;
         public int priceInCents = 0;
+		
+		// Since OUYA returns all transaction amounts in USD, this is USD only for now.
+		public string localizedPrice() {
+			return "$" + ((decimal)this.priceInCents) / 100M;
+		}
 		
 		public override string ToString() {
 			return string.Format("Product ID: {0}, Name: {1}, Price (USD): ${2:#0.00}", 
