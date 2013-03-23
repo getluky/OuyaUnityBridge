@@ -154,6 +154,22 @@ public class OuyaBridge : MonoBehaviour {
 #endif
 	}	
 	
+	/// <summary>
+	/// Refreshes the devices next frame.
+	/// </summary>
+	public IEnumerator RefreshDevicesNextFrame() {
+#if UNITY_OUYA && !UNITY_EDITOR
+		// Wait one frame, then refresh devices.
+		yield return null;
+		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
+		activity.Call("sendDevices");
+		
+#else
+		yield break;
+#endif
+	}
+	
 	#endregion
 	
 	#region Event Receivers
@@ -165,11 +181,21 @@ public class OuyaBridge : MonoBehaviour {
 		devices = new Device[deviceList.Count];
 		int i=0;
 		foreach (Device d in deviceList) {
+			if (d.player == -1) { 
+				// Device addition was detected and processed before OUYA SDK had a chance to set the real
+				// player number. We'll call back to refresh devices next frame.
+				if (Debug.isDebugBuild) {
+					Debug.LogWarning("Uninitialized device detected, requesting re-initialization next frame.");
+				}
+				StartCoroutine(RefreshDevicesNextFrame());
+			}
+			
 			devices[i++] = d;
+			
 			// Uncomment to observe device connection information, useful for multicontroller debugging.
 			// Debug.Log("Connecting " + d.ToString());
 		}
-		// Debug.Log("Devices refreshed: " + devices.Length + " devices connected");
+		if (Debug.isDebugBuild) Debug.Log("Devices refreshed: " + devices.Length + " devices connected");
 		if (onDevicesChanged != null)
 			onDevicesChanged();
 	}

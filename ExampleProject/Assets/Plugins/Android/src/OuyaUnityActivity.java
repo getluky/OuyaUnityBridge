@@ -166,7 +166,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 	//indicates the Unity player has loaded
 	private Boolean mEnableUnity = true;
 
-	private Boolean mEnableLogging = false;
+	private Boolean mEnableLogging = true;
 
 	private InputManager mInputManager = null;
 	private InputManager.InputDeviceListener minputDeviceListener = null;
@@ -476,7 +476,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 	{
 		if (mEnableLogging)
 		{
-			Log.i("Unity", "void onInputDeviceAdded(int deviceId) " + deviceId);
+			Log.i("Unity", "void onInputDeviceChanged(int deviceId) " + deviceId);
 		}
 		sendDevices();
 	}
@@ -643,8 +643,6 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 		ArrayList<Device> devices = new ArrayList<Device>();
 		int[] deviceIds = InputDevice.getDeviceIds();
 
-
-		int controllerCount = 1;
 		for (int count=0; count < deviceIds.length; count++)
 		{
 			InputDevice d = InputDevice.getDevice(deviceIds[count]);
@@ -661,7 +659,6 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
 					device.player = OuyaController.getPlayerNumByDeviceId(device.id);
 					device.name = d.getName();
 					devices.add(device);
-					controllerCount++;
 				}
 				else
 				{
