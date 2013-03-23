@@ -74,7 +74,7 @@ public class ShowInput : MonoBehaviour {
 			}
 			GUILayout.Label("DPadRight Button: " + OuyaInput.GetKey(keyCode) + " (using GetKey(KeyCode))");
 			
-			//GUILayout.Label("System Button: " + OuyaInput.GetButton(string.Format("Joy{0} System", playerNum+1)));
+			GUILayout.Label("System Button: " + OuyaInput.GetButton(string.Format("Joy{0} System", playerNum+1)));
 			
 			
 			GUILayout.Label("Left Stick: " + OuyaInput.GetAxis("Joy" + (playerNum+1) + " Horizontal") + "x" + OuyaInput.GetAxis("Joy" + (playerNum+1) + " Vertical"));

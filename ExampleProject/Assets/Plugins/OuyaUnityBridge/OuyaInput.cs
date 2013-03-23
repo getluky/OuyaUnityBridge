@@ -507,8 +507,6 @@ public class OuyaInput : MonoBehaviour {
 						SetButtonValue(i, OuyaKey.BUTTON_RB, playerStates[i].Get<bool>("ButtonR1"));
 						SetButtonValue(i, OuyaKey.BUTTON_R3, playerStates[i].Get<bool>("ButtonR3"));
 						
-						SetButtonValue(i, OuyaKey.BUTTON_SYSTEM, playerStates[i].Get<bool>("ButtonSystem"));
-						
 						SetButtonValue(i, OuyaKey.BUTTON_DPAD_UP, playerStates[i].Get<bool>("ButtonDPU"));
 						SetButtonValue(i, OuyaKey.BUTTON_DPAD_DOWN, playerStates[i].Get<bool>("ButtonDPD"));
 						SetButtonValue(i, OuyaKey.BUTTON_DPAD_LEFT, playerStates[i].Get<bool>("ButtonDPL"));
