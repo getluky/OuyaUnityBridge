@@ -106,6 +106,21 @@ public class OuyaBridge : MonoBehaviour {
 		}	
 #endif
 	}
+	
+	/// <summary>
+	/// Requests a product refresh
+	/// </summary> 
+	public static void RequestProducts() {
+#if UNITY_OUYA && !UNITY_EDITOR
+		AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+		AndroidJavaObject activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
+		activity.Call("requestProducts");
+#elif UNITY_EDITOR
+		
+#endif
+		
+	}
+	
 	/// <summary>
 	/// Refreshes the receipts. Please note that this may not be necessary, as receipts are updated at 
 	/// launch and after the product is purchased.
