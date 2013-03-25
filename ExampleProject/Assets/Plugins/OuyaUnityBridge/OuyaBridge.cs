@@ -279,7 +279,7 @@ public class OuyaBridge : MonoBehaviour {
 		
 		// Since OUYA returns all transaction amounts in USD, this is USD only for now.
 		public string localizedPrice() {
-			return "$" + ((decimal)this.priceInCents) / 100M;
+			return string.Format("${0:0.00}", ((decimal)this.priceInCents) / 100M);
 		}
 		
 		public override string ToString() {
