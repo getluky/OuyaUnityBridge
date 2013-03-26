@@ -1,12 +1,12 @@
 OuyaUnityBridge
 ===============
 
-A minimalist, unofficial bridge between the OUYA ODK and Unity4. Adheres to polling-based Input convention in Unity.
+A minimalist, unofficial bridge between the OUYA ODK and Unity 4. Adheres to polling-based Input convention in Unity.
 
 About
 ---------------
 
-### Controller Input 
+### Controller Input Preface
 
 This is an unofficial Unity-Ouya bridge that provides an abstraction mapped to Unity-standard Input design so that experienced developers with large codebases can jump right in instead of rewriting for event-based input. The official Unity plugin optimizes for event-based input instead of polling-based input. This is a minimalist polling-based solution with configurable input, and it layers Unity Input idioms on top of ODK's OuyaController class to allow for faster porting. The OuyaUnityBridge is mostly appropriate to experienced developers who show up from time to time with a large project and would have a very hard time switching over to event-based input (like me).
 
@@ -22,14 +22,26 @@ See the wiki for OuyaInput's default virtual axis / button names and KeyCodes fo
 
 https://github.com/getluky/OuyaUnityBridge/wiki
 
+### How to use OuyaInput.cs
+
+* Drop the OuyaBridge prefab into your splash/loading scene.
+* Customize the OuyaInput virtual axes and buttons to match your desired virtual (or key-based) input definitions.
+* Replace Input.GetButton/GetAxis/GetKey/anyKey/anyKeyDown calls with OuyaInput call.
+
+
 ### IAP and UUIDs
 
-For completeness, this also supports the basic IAP/UUID calls in the ODK. The OuyaUnityActivity.java must be customized with your developer ID and product lists. 
+OuyaBridge also supports IAP and OuyaFacade calls in the ODK. The OuyaUnityActivity.java must be customized with your developer ID and product lists first.
 
-This allows you to call into the ODK directly from Unity via the following methods:
-* OuyaBridge.PurchaseProduct(string productId)
-* OuyaBridge.FetchGamerUUID()
+When the application starts, it will automatically try to populate OuyaBridge.receipts and OuyaBridge.products just like the default iap-sample-app. A few seconds after startup, you can probably just look directly into these static arrays.
+
+If you need to call into the ODK, you can use the following static methods:
+* OuyaBridge.PurchaseProduct(string productId) - purchases a product by string ID, but you should make sure it exists in OuyaBridge.products first!
+* OuyaBridge.FetchGamerUUID() - gets the gamer's UUID.
 * OuyaBridge.RefreshReceipts()
+* OuyaBridge.RequestProducts()
+* OuyaBridge.GetOdkVersionNumber() - returns integer-based ODK ver.
+* OuyaBridge.IsRunningOnOuyaHardware() - should tell you whether it's running on OUYA hardware, but I think this is currently broken in the ODK.
 
 ... which respond asynchronously. You can subscribe to the following events in OuyaBridge.cs for notifications:
 * onDevicesChanged()
@@ -66,6 +78,7 @@ How to Use:
 
 While developing the Java side, I noticed that the ODK calls the Activity's onPause method when showing IAP confirmation dialogs. If the UnityPlayer is paused, this will effectively stop execution safely if the gamer is in the middle of action, but the display will black out under the dialogue. I have set this to not pause by default, but instead clear out all input temporarily, as most games may only have IAP possible within a menu system that doesn't require time pausing. To change this setting, edit OuyaUnityActivity.java and set UNITY_PAUSE_ON_OUYA_OVERLAYS to true. In either case, OuyaBridge.didPause and OuyaBridge.didResume are called if you want to do custom handling here.
 
+With Beast Boxing Turbo, to support the way that an app can be paused with a double-tap/long press of the system button, I have listeners for onPause and onResume that control AudioListener.pause (to disable music), and also that call GL.InvalidateState() on resume.
 
 Example Unity Project
 ----------------
@@ -73,6 +86,17 @@ You can also import and install the example Unity Project included in the github
 
 Changelog
 -----------------
+1.0 - Based on ODK 1.0.1
+    * Adds in a one-frame simulated press for single-tap on the OUYA MENU/SYSTEM button.
+    * Updates IAP structure to work with encrypted receipts and helpers, based on the iap sample app.
+    * Adds Product.localizedPrice() on the Unity side.
+    * Adds OuyaBridge.RequestProducts
+    * Handles disconnect/reconnect of controllers while maintaining player number.
+    * Better UI layout in Example App
+    * Simulate onProductPurchased event in editor when calling PurchaseProduct
+    * Calls for IsRunningOnOuyaHardware and GetOdkVersionNumber.
+    * Recover from connection of an uninitialized device with playerNum = -1
+    * Added editor script (Windows > Key Window) to assist with converting .der to byte array.
 0.1 - Initial release, based on ODK 0.6 and Unity 4.
 
 
