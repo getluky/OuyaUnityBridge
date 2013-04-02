@@ -27,6 +27,7 @@ public class ShowInput : MonoBehaviour {
 			GUILayout.BeginArea(new Rect(Screen.width*0.05f + playerNum * okWidth/4, Screen.height*0.05f + 400, okWidth/2, okHeight));
 			
 			GUILayout.Label("Frame #: " + Time.frameCount);
+			GUILayout.Label ("IsRunningOnOuyaHardware returned " + isOnOuyaHardware);
 			/* This appears to not be working so I'm disabling it. */
 			/*
 			if (isOnOuyaHardware) {
