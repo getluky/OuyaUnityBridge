@@ -1,6 +1,9 @@
 OuyaUnityBridge
 ===============
 
+Latest Version: 1.0.2
+ODK Version: 1.0.2
+
 A minimalist, unofficial bridge between the OUYA ODK and Unity 4. Adheres to polling-based Input convention in Unity.
 
 About
@@ -10,15 +13,15 @@ About
 
 This is an unofficial Unity-Ouya bridge that provides an abstraction mapped to Unity-standard Input design so that experienced developers with large codebases can jump right in instead of rewriting for event-based input. The official Unity plugin optimizes for event-based input instead of polling-based input. This is a minimalist polling-based solution with configurable input, and it layers Unity Input idioms on top of ODK's OuyaController class to allow for faster porting. The OuyaUnityBridge is mostly appropriate to experienced developers who show up from time to time with a large project and would have a very hard time switching over to event-based input (like me).
 
-It does not have all the bells and whistles of the official Ouya Unity plugin, so PLEASE only use this if you know what you're doing and need it. This is based on the iap-sample-app and the Unity plugin's Java compilation approach. If you don't have a big project to port, I would recommend the official Unity plugin, as it's going to be the most up-to-date and supports a bunch of different controllers.  
+It does not have all the bells and whistles of the official Ouya Unity plugin, so PLEASE only use this if you know what you're doing and need it. This is based on the iap-sample-app and the Unity plugin's Java compilation approach. If you don't have a big project to port, I would recommend the official Unity plugin, as it's going to be the most up-to-date and supports a bunch of different controllers.
 
-On the device, it uses the OuyaController API to monitor and update controller input, so any controller supported by OuyaController API should work. In the editor, it simply falls back to regular Unity input. 
+On the device, it uses the OuyaController API to monitor and update controller input, so any controller supported by OuyaController API should work. In the editor, it simply falls back to regular Unity input.
 
 If you understand and use Unity Input virtual axes and buttons or keycodes heavily, OuyaInput basically replaces Input calls GetButton/Up/Down, GetKey/Up/Down, GetAxis, anyKey, and anyKeyDown, which then map ouya buttons and axes to your existing buttons, axes, or keycodes used by your game. It uses the definitions on the OuyaInput emulatedControllers (visible in the inspector) to define what buttons map to both virtual names and keycodes.
 
 Again, if you can't get this to work or don't already rely heavily on Unity Input functions, you should probably use the official OUYA Unity plugin instead.
 
-See the wiki for OuyaInput's default virtual axis / button names and KeyCodes for OUYA controller inputs: 
+See the wiki for OuyaInput's default virtual axis / button names and KeyCodes for OUYA controller inputs:
 
 https://github.com/getluky/OuyaUnityBridge/wiki
 
@@ -56,7 +59,7 @@ If you need to call into the ODK, you can use the following static methods:
 
 How to Use:
 ---------------
-* Import OuyaUnityBridge.unitypackage to your existing project (https://github.com/getluky/OuyaUnityBridge/blob/master/OuyaUnityBridge.unitypackage?raw=true) 
+* Import OuyaUnityBridge.unitypackage to your existing project (https://github.com/getluky/OuyaUnityBridge/blob/master/OuyaUnityBridge.unitypackage?raw=true)
 * Make sure your build target is for Android
 * Change the Minimum API level to Jelly Bean (16)
 * Change Resolution and Presentation > Default Orientation to Landscape Left
@@ -82,21 +85,23 @@ With Beast Boxing Turbo, to support the way that an app can be paused with a dou
 
 Example Unity Project
 ----------------
-You can also import and install the example Unity Project included in the github repo to test out controller input and IAP together. Simply edit Plugins/Android/src/OuyaUnityActivity.java and add in your developer ID and products, recompile java, double check that the above configuration is all set, then Build and Run. Use the touchpad to try clicking on product purchase buttons, fetch Gamer UUID buttons, or the refresh receipts button. 
+You can also import and install the example Unity Project included in the github repo to test out controller input and IAP together. Simply edit Plugins/Android/src/OuyaUnityActivity.java and add in your developer ID and products, recompile java, double check that the above configuration is all set, then Build and Run. Use the touchpad to try clicking on product purchase buttons, fetch Gamer UUID buttons, or the refresh receipts button.
 
 Changelog
 -----------------
+1.0.2
+* Updated ODK SDK to 1.0.2
 1.0 - Based on ODK 1.0.1
-    * Adds in a one-frame simulated press for single-tap on the OUYA MENU/SYSTEM button.
-    * Updates IAP structure to work with encrypted receipts and helpers, based on the iap sample app.
-    * Adds Product.localizedPrice() on the Unity side.
-    * Adds OuyaBridge.RequestProducts
-    * Handles disconnect/reconnect of controllers while maintaining player number.
-    * Better UI layout in Example App
-    * Simulate onProductPurchased event in editor when calling PurchaseProduct
-    * Calls for IsRunningOnOuyaHardware and GetOdkVersionNumber.
-    * Recover from connection of an uninitialized device with playerNum = -1
-    * Added editor script (Windows > Key Window) to assist with converting .der to byte array.
+* Adds in a one-frame simulated press for single-tap on the OUYA MENU/SYSTEM button.
+* Updates IAP structure to work with encrypted receipts and helpers, based on the iap sample app.
+* Adds Product.localizedPrice() on the Unity side.
+* Adds OuyaBridge.RequestProducts
+* Handles disconnect/reconnect of controllers while maintaining player number.
+* Better UI layout in Example App
+* Simulate onProductPurchased event in editor when calling PurchaseProduct
+* Calls for IsRunningOnOuyaHardware and GetOdkVersionNumber.
+* Recover from connection of an uninitialized device with playerNum = -1
+* Added editor script (Windows > Key Window) to assist with converting .der to byte array.
 0.1 - Initial release, based on ODK 0.6 and Unity 4.
 
 
