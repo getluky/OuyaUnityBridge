@@ -219,7 +219,9 @@ public class OuyaInput : MonoBehaviour {
 		if (jc != null) jc.Dispose();
 		if (playerStates != null) {
 			for (int i=0; i<playerStates.Length; i++) {
-				playerStates[i].Dispose();
+				if (playerStates[i] != null) {
+					playerStates[i].Dispose();
+				}
 			}
 		}
 #endif
