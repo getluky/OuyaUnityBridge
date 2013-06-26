@@ -86,6 +86,13 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
      */
     private static final String LOG_TAG = "OuyaUnityActivity";
 
+    /**
+     * Value that OuyaController.getPlayerNumByDeviceId returns when
+     * an InputDevice is not something that OuyaController considers
+     * a controller. (ex: Keyboards, mice, etc)
+     */
+    private static final int DEVICE_NOT_OUYACONTROLLER_COMPATIBLE = -1;
+
     //the Unity Player
     private UnityPlayer mUnityPlayer;
 
@@ -434,7 +441,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     {
         if (mEnableLogging)
         {
-            Log.i("Unity", "void onInputDeviceAdded(int deviceId) " + deviceId);
+            Log.i(LOG_TAG, "void onInputDeviceAdded(int deviceId) " + deviceId);
         }
         sendDevices();
     }
@@ -442,7 +449,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     {
         if (mEnableLogging)
         {
-            Log.i("Unity", "void onInputDeviceChanged(int deviceId) " + deviceId);
+            Log.i(LOG_TAG, "void onInputDeviceChanged(int deviceId) " + deviceId);
         }
         sendDevices();
     }
@@ -450,7 +457,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     {
         if (mEnableLogging)
         {
-            Log.i("Unity", "void onInputDeviceRemoved(int deviceId) " + deviceId);
+            Log.i(LOG_TAG, "void onInputDeviceRemoved(int deviceId) " + deviceId);
         }
         sendDevices();
     }
@@ -605,29 +612,12 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
             InputDevice d = InputDevice.getDevice(deviceIds[count]);
             if (!d.isVirtual())
             {
-                if (d.getName().toUpperCase().indexOf("XBOX 360 WIRELESS RECEIVER") != -1 ||
-                    d.getName().toUpperCase().indexOf("OUYA GAME CONTROLLER") != -1 ||
-                    d.getName().toUpperCase().indexOf("MICROSOFT X-BOX 360 PAD") != -1 ||
-                    d.getName().toUpperCase().indexOf("IDROID:CON") != -1 ||
-                    d.getName().toUpperCase().indexOf("USB CONTROLLER") != -1)
-                {
-                    Device device = new Device();
-                    device.id = d.getId();
-                    device.player = OuyaController.getPlayerNumByDeviceId(device.id);
+                Device device = new Device();
+                device.id = d.getId();
+                device.player = OuyaController.getPlayerNumByDeviceId(device.id);
+                if (device.player != DEVICE_NOT_OUYACONTROLLER_COMPATIBLE) {
                     device.name = d.getName();
                     devices.add(device);
-                }
-                else
-                {
-                    Device device = new Device();
-                    device.id = d.getId();
-                    // Player is actually zero-indexed
-                    device.player = -1;
-                    device.name = d.getName();
-                    if (device.name.indexOf("gpio-keys") == -1) {
-                        // Skip gpio-keys!
-                        devices.add(device);
-                    }
                 }
             }
         }
@@ -637,33 +627,36 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
+        Log.d(LOG_TAG, "OnKeyDown: " + keyCode);
         // Pass to OuyaController first, then process.
-        boolean handled = OuyaController.onKeyDown(keyCode, event);
-        if (mPaused) return handled || super.onKeyDown(keyCode, event);
-        int playerNum = 0;
-        try {
-            playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
-            ControllerState data = playerStates[playerNum];
-            OuyaController c = OuyaController.getControllerByPlayer(playerNum);
-            if (data != null)
-            {
-                data.ButtonO = c.getButton(OuyaController.BUTTON_O);
-                data.ButtonU = c.getButton(OuyaController.BUTTON_U);
-                data.ButtonY = c.getButton(OuyaController.BUTTON_Y);
-                data.ButtonA = c.getButton(OuyaController.BUTTON_A);
-                data.ButtonDPD = c.getButton(OuyaController.BUTTON_DPAD_DOWN);
-                data.ButtonDPU = c.getButton(OuyaController.BUTTON_DPAD_UP);
-                data.ButtonDPL = c.getButton(OuyaController.BUTTON_DPAD_LEFT);
-                data.ButtonDPR = c.getButton(OuyaController.BUTTON_DPAD_RIGHT);
-                data.ButtonL1 = c.getButton(OuyaController.BUTTON_L1);
-                data.ButtonL2 = c.getButton(OuyaController.BUTTON_L2);
-                data.ButtonL3 = c.getButton(OuyaController.BUTTON_L3);
-                data.ButtonR1 = c.getButton(OuyaController.BUTTON_R1);
-                data.ButtonR2 = c.getButton(OuyaController.BUTTON_R2);
-                data.ButtonR3 = c.getButton(OuyaController.BUTTON_R3);
+        boolean handled = false;
+        int playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
+        if (playerNum != DEVICE_NOT_OUYACONTROLLER_COMPATIBLE) {
+            handled = OuyaController.onKeyDown(keyCode, event);
+            if (mPaused) return handled || super.onKeyDown(keyCode, event);
+            try {
+                ControllerState data = playerStates[playerNum];
+                OuyaController c = OuyaController.getControllerByPlayer(playerNum);
+                if (data != null)
+                {
+                    data.ButtonO = c.getButton(OuyaController.BUTTON_O);
+                    data.ButtonU = c.getButton(OuyaController.BUTTON_U);
+                    data.ButtonY = c.getButton(OuyaController.BUTTON_Y);
+                    data.ButtonA = c.getButton(OuyaController.BUTTON_A);
+                    data.ButtonDPD = c.getButton(OuyaController.BUTTON_DPAD_DOWN);
+                    data.ButtonDPU = c.getButton(OuyaController.BUTTON_DPAD_UP);
+                    data.ButtonDPL = c.getButton(OuyaController.BUTTON_DPAD_LEFT);
+                    data.ButtonDPR = c.getButton(OuyaController.BUTTON_DPAD_RIGHT);
+                    data.ButtonL1 = c.getButton(OuyaController.BUTTON_L1);
+                    data.ButtonL2 = c.getButton(OuyaController.BUTTON_L2);
+                    data.ButtonL3 = c.getButton(OuyaController.BUTTON_L3);
+                    data.ButtonR1 = c.getButton(OuyaController.BUTTON_R1);
+                    data.ButtonR2 = c.getButton(OuyaController.BUTTON_R2);
+                    data.ButtonR3 = c.getButton(OuyaController.BUTTON_R3);
+                }
+            } catch (Exception e) {
+                Log.w(LOG_TAG, "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
             }
-        } catch (Exception e) {
-            Log.w("Unity", "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
         }
         return handled || super.onKeyDown(keyCode, event);
     }
@@ -671,40 +664,44 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event)
     {
-        // A special MENU KeyUp event is triggered at the same time as its KeyDown event
-        // in the OUYA SDK. We tell the Unity layer to handle this specially and emulate
-        // a 1-frame menu button press.
-        if (keyCode == OuyaController.BUTTON_MENU) {
-            int playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
-            UnityPlayer.UnitySendMessage("OuyaBridge", "MenuButtonPressed", "" + playerNum);
-        }
-        // Pass to OuyaController first, then process.
-        boolean handled = OuyaController.onKeyDown(keyCode, event);
-        if (mPaused) return handled || super.onKeyDown(keyCode, event);
-        int playerNum = 0;
-        try {
-            playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
-            ControllerState data = playerStates[playerNum];
-            OuyaController c = OuyaController.getControllerByPlayer(playerNum);
-            if (data != null)
-            {
-                data.ButtonO = c.getButton(OuyaController.BUTTON_O);
-                data.ButtonU = c.getButton(OuyaController.BUTTON_U);
-                data.ButtonY = c.getButton(OuyaController.BUTTON_Y);
-                data.ButtonA = c.getButton(OuyaController.BUTTON_A);
-                data.ButtonDPD = c.getButton(OuyaController.BUTTON_DPAD_DOWN);
-                data.ButtonDPU = c.getButton(OuyaController.BUTTON_DPAD_UP);
-                data.ButtonDPL = c.getButton(OuyaController.BUTTON_DPAD_LEFT);
-                data.ButtonDPR = c.getButton(OuyaController.BUTTON_DPAD_RIGHT);
-                data.ButtonL1 = c.getButton(OuyaController.BUTTON_L1);
-                data.ButtonL2 = c.getButton(OuyaController.BUTTON_L2);
-                data.ButtonL3 = c.getButton(OuyaController.BUTTON_L3);
-                data.ButtonR1 = c.getButton(OuyaController.BUTTON_R1);
-                data.ButtonR2 = c.getButton(OuyaController.BUTTON_R2);
-                data.ButtonR3 = c.getButton(OuyaController.BUTTON_R3);
+        boolean handled = false;
+        int playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
+        if (playerNum != DEVICE_NOT_OUYACONTROLLER_COMPATIBLE) {
+            // A special MENU KeyUp event is triggered at the same time as its KeyDown event
+            // in the OUYA SDK. We tell the Unity layer to handle this specially and emulate
+            // a 1-frame menu button press.
+            if (keyCode == OuyaController.BUTTON_MENU) {
+                UnityPlayer.UnitySendMessage("OuyaBridge", "MenuButtonPressed", "" + playerNum);
+                return handled || super.onKeyDown(keyCode, event);
             }
-        } catch (Exception e) {
-            Log.w("Unity", "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
+
+            // Pass to OuyaController first, then process.
+            handled = OuyaController.onKeyDown(keyCode, event);
+            if (mPaused) return handled || super.onKeyDown(keyCode, event);
+            try {
+                playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
+                ControllerState data = playerStates[playerNum];
+                OuyaController c = OuyaController.getControllerByPlayer(playerNum);
+                if (data != null)
+                {
+                    data.ButtonO = c.getButton(OuyaController.BUTTON_O);
+                    data.ButtonU = c.getButton(OuyaController.BUTTON_U);
+                    data.ButtonY = c.getButton(OuyaController.BUTTON_Y);
+                    data.ButtonA = c.getButton(OuyaController.BUTTON_A);
+                    data.ButtonDPD = c.getButton(OuyaController.BUTTON_DPAD_DOWN);
+                    data.ButtonDPU = c.getButton(OuyaController.BUTTON_DPAD_UP);
+                    data.ButtonDPL = c.getButton(OuyaController.BUTTON_DPAD_LEFT);
+                    data.ButtonDPR = c.getButton(OuyaController.BUTTON_DPAD_RIGHT);
+                    data.ButtonL1 = c.getButton(OuyaController.BUTTON_L1);
+                    data.ButtonL2 = c.getButton(OuyaController.BUTTON_L2);
+                    data.ButtonL3 = c.getButton(OuyaController.BUTTON_L3);
+                    data.ButtonR1 = c.getButton(OuyaController.BUTTON_R1);
+                    data.ButtonR2 = c.getButton(OuyaController.BUTTON_R2);
+                    data.ButtonR3 = c.getButton(OuyaController.BUTTON_R3);
+                }
+            } catch (Exception e) {
+                Log.w(LOG_TAG, "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
+            }
         }
         return handled || super.onKeyDown(keyCode, event);
     }
@@ -712,26 +709,31 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
         // Pass to OuyaController first, then process.
-        boolean handled = OuyaController.onGenericMotionEvent(event);
-        if (mPaused) return handled || super.onGenericMotionEvent(event);
+        boolean handled = false;
+        int playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
 
-        // Check if this was a joystick or touch hover event
-        int playerNum = 0;
-        try {
-            playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
-            ControllerState data = playerStates[playerNum];
-            OuyaController c = OuyaController.getControllerByPlayer(playerNum);
-            if (data != null)
-            {
-                data.AxisLSX = c.getAxisValue(OuyaController.AXIS_LS_X);
-                data.AxisLSY = c.getAxisValue(OuyaController.AXIS_LS_Y);
-                data.AxisRSX = c.getAxisValue(OuyaController.AXIS_RS_X);
-                data.AxisRSY = c.getAxisValue(OuyaController.AXIS_RS_Y);
-                data.AxisLT = c.getAxisValue(OuyaController.AXIS_L2);
-                data.AxisRT = c.getAxisValue(OuyaController.AXIS_R2);
+        // Add the additional conditional that this must be a joystick event (not a pointer event).
+        if (playerNum != DEVICE_NOT_OUYACONTROLLER_COMPATIBLE
+            && ((event.getSource() & InputDevice.SOURCE_JOYSTICK) != 0)) {
+            handled = OuyaController.onGenericMotionEvent(event);
+            if (mPaused) return handled || super.onGenericMotionEvent(event);
+
+            // Check if this was a joystick or touch hover event
+            try {
+                ControllerState data = playerStates[playerNum];
+                OuyaController c = OuyaController.getControllerByPlayer(playerNum);
+                if (data != null)
+                {
+                    data.AxisLSX = c.getAxisValue(OuyaController.AXIS_LS_X);
+                    data.AxisLSY = c.getAxisValue(OuyaController.AXIS_LS_Y);
+                    data.AxisRSX = c.getAxisValue(OuyaController.AXIS_RS_X);
+                    data.AxisRSY = c.getAxisValue(OuyaController.AXIS_RS_Y);
+                    data.AxisLT = c.getAxisValue(OuyaController.AXIS_L2);
+                    data.AxisRT = c.getAxisValue(OuyaController.AXIS_R2);
+                }
+            } catch (Exception e) {
+                Log.i(LOG_TAG, "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
             }
-        } catch (Exception e) {
-            Log.i("Unity", "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
         }
         return handled || super.onGenericMotionEvent(event);
     }
