@@ -228,6 +228,22 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
                 playerStates[i] = new ControllerState();
         }
 
+        // Create the UnityPlayer
+        mUnityPlayer = new UnityPlayer(this);
+        int glesMode = mUnityPlayer.getSettings().getInt("gles_mode", 1);
+        boolean trueColor8888 = false;
+        mUnityPlayer.init(glesMode, trueColor8888);
+        setContentView(R.layout.main);
+
+        // Add the Unity view
+        FrameLayout layout = (FrameLayout) findViewById(R.id.unityLayout);
+        LayoutParams lp = new LayoutParams (LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+        layout.addView(mUnityPlayer.getView(), 0, lp);
+
+        // Set the focus
+        RelativeLayout mainLayout = (RelativeLayout) findViewById(R.id.mainLayout);
+        mainLayout.setFocusableInTouchMode(true);
+
         // Attempt to restore the product and receipt list from the savedInstanceState Bundle
         if(savedInstanceState != null) {
             if(savedInstanceState.containsKey(PRODUCTS_INSTANCE_STATE_KEY)) {
@@ -261,23 +277,6 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
         } catch (Exception e) {
             Log.e(LOG_TAG, "Unable to create encryption key", e);
         }
-
-        // Create the UnityPlayer
-        mUnityPlayer = new UnityPlayer(this);
-        int glesMode = mUnityPlayer.getSettings().getInt("gles_mode", 1);
-        boolean trueColor8888 = false;
-        mUnityPlayer.init(glesMode, trueColor8888);
-        setContentView(R.layout.main);
-
-        // Add the Unity view
-        FrameLayout layout = (FrameLayout) findViewById(R.id.unityLayout);
-        LayoutParams lp = new LayoutParams (LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-        layout.addView(mUnityPlayer.getView(), 0, lp);
-
-        // Set the focus
-        RelativeLayout mainLayout = (RelativeLayout) findViewById(R.id.mainLayout);
-        mainLayout.setFocusableInTouchMode(true);
-
     }
     @Override
     protected void onStart()
