@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ShowInput : MonoBehaviour {
 	
@@ -8,6 +9,8 @@ public class ShowInput : MonoBehaviour {
 	
 	float okWidth = 1280f;
 	float okHeight = 720f;
+	
+	string inputString;
 	
 	IEnumerator Start() {
 		
@@ -19,8 +22,15 @@ public class ShowInput : MonoBehaviour {
 		isOnOuyaHardware = OuyaBridge.IsRunningOnOuyaHardware();
 	}
 	
+	void Update() {
+		if (Input.inputString != "") {
+			inputString += Input.inputString;
+		}
+	}
 
 	void OnGUI() {
+		
+		GUILayout.Label("Keyboard input: " + inputString);
 		
 		for (int i=0; i<OuyaBridge.devices.Length; i++) {
 			int playerNum = OuyaBridge.devices[i].player;

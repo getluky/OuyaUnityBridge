@@ -627,7 +627,6 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        Log.d(LOG_TAG, "OnKeyDown: " + keyCode);
         // Pass to OuyaController first, then process.
         boolean handled = false;
         int playerNum = OuyaController.getPlayerNumByDeviceId(event.getDeviceId());
@@ -658,7 +657,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
                 Log.w(LOG_TAG, "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
             }
         }
-        return handled || super.onKeyDown(keyCode, event);
+        return handled || mUnityPlayer.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -703,7 +702,7 @@ public class OuyaUnityActivity extends Activity implements InputDeviceListener
                 Log.w(LOG_TAG, "Exception occurred getting controller state for player " + playerNum + ": " + e.toString());
             }
         }
-        return handled || super.onKeyDown(keyCode, event);
+        return handled || mUnityPlayer.onKeyDown(keyCode, event);
     }
 
     @Override
