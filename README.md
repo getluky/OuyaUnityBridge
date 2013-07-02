@@ -1,8 +1,8 @@
 OuyaUnityBridge
 ===============
 
-Latest Version: 1.0.2
-ODK Version: 1.0.2
+Latest Version: 1.0.6
+ODK Version: 1.0.6
 
 A minimalist, unofficial bridge between the OUYA ODK and Unity 4. Adheres to polling-based Input convention in Unity.
 
@@ -89,6 +89,11 @@ You can also import and install the example Unity Project included in the github
 
 Changelog
 -----------------
+1.0.6
+* Updated ODK SDK to 1.0.6
+* Addressed crash issues from external devices (USB/Bluetooth)
+* Addressed performance issues from external devices
+
 1.0.2
 * Updated ODK SDK to 1.0.2
 1.0 - Based on ODK 1.0.1
